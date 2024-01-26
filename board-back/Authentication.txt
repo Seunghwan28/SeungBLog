@@ -172,3 +172,12 @@ path variable에 대해서 알아봐야함 특히, useEffect랑 useParams(이게
 -> npm i react-cookie 로 받아옴
 로그인버튼은 AUTH_PATH로 마이페이지는 USER_PATH('') 여기에 유저 정보로 넘어가짐
 zustand 받았는데 어떤건지 알아보기
+
+로그인 상태를 위한 변수 isLogin
+인터페이스에 User 인터페이스 만들어줌 => 이메일, 프사, 별명 갖고올 수 있게 해놓고, export
+store에 login-user.store만들고 User import해줌
+여기도 인터페이스로 로그인 상태에 대한 것 설정
+로그인 되면, 로그인된 유저 정보로 담아서 로그인된상태(setLoginUser)
+로그아웃 되면, 그 유저를 로그아웃 시켜주기 (로그인 상태 null로 만들어주기) => resetLoginUser
+
+로그인돼있고, 유저의 이메일과 내 이메일이 같으면(마이페이지) => 로그아웃 버튼 (마이페이지에서 로그아웃 가능하게)
