@@ -1,0 +1,174 @@
+Basic Authentication
+- 사용자 이름 / 비밀번호를 base64로 인코딩하여 Authorization 헤더에 포함하여 전송됨
+- 매우 안전하지 않음, SSL/TLS와 함께 사용됨
+
+Authorization: Basic ~~~~
+
+Bearer Token Authentication (이거 사용 예정)
+- 헤더에 토큰을 포함하여 전송 Authorization 헤더에 포함하여 전송
+- JWT을 사용하여 인증
+- (장점)간단한 방식, 상태를 유지하지 않음, 확장성이 높다
+- (단점) 토큰 노출 위험, 토큰 관리 힘듦
+
+Authorization: Bearer ~~~~
+
+OAuth 방식
+- 토큰 기반인증 방식, 사용자가 직접 자격을 증명 X -> 미리 인증 받아서 토큰을 발급받고 
+- 이 토큰을 이용해서 APT를 요청하는 방식 OAuth 2.0을 사용
+
+Kakao / Naver / Git / Facebook (OAuth방식을 사용하는 것들)
+
+API Key / Session based Authentication (다른 인증 방식들)
+
+JWT(Json Web Token): 클레임이라고 불리는 정보를 JSON형태로 안전하게 전송하기 위한 토큰 기반의 표준
+- 인증과 정보 교환에 사용, 서명이 되어 있어서 신뢰성 확보가 가능
+
+1. Header: 토큰의 타입과 사용된 알고리즘 정보를 담고 있음, Base64URL로 인코딩
+2. Payload: 클레임 정보, 대상, 발행자, 만료 시간 등 다양한 정보가 포함됩, Base64URL로 인코딩
+3. Signature: Header와 Payload, Secret Key를 사용하여 생성된 서명
+
+인증, 정보교환
+
+장점
+- 상태 유지X(stateless): 서버가 상태를 유지할 필요가 없다
+- 간단하고 자기 포함적
+- 확장성이 높다
+
+단점
+- 크기: 클레임이 많을수록 토큰의 크기가 커짐
+- 보안: 서명은 되어있지만 암호화는 되어있지 않다. (단순 인코딩만), 중요한 정보를 JWT에 포함하면 안됨
+- 토큰관리: 만료시간, 갱신
+
+MVC에서도 클라이언트에서 요청을 보내면 바로 controller로 가는 것이 아닐, filter 여러개 거쳐서 내려감
+filter인증이 안되면, 바로 내보내짐 => 통과한 애들만 controller 작업
+filter에서 jwt검증 => subject email 꺼내오기 근데 filter에서 넘기는건 안돼서
+외부 context에 담아놓고, 어디서든 꺼내게 하게끔 설게 => filter거치면, context에서 email을 controller로 보내기
+
+provider에서 jwtprovider를 만들어주고 여기서 jwt인증 토큰을 만듦
+JwtAuthenticationFilter에서 필터체인과 res req를 활용해서 인증 거치고 다음 필터로 보내기
+parseBearerToken(HttpServletRequest request) 을 통해서 req에 대한 토큰을 뽑아와서 올바른지 우선 검증
+hasText를 통해 null인지 공백인지 등등 검증하고, bearer 토큰인지 검증 다 하면 token 반환
+그 반환된 토큰이 null이면 필터체인으로 바로 내보내기 (controller 안 거치고)
+그리고 email값 꺼내오고 (claims의 바디값) => filter에서 외부 context에 저장하는 과정 
+authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); 를 통해서
+요청에 대한 세부 정보 작성가능케하고
+
+비어있는 context만들고, 거기에 이메일 넣고, 그거를 다시 holder에 넣어서 외부에서도 접근가능케함.
+오류 뜨면 필터체인으로 그냥 내보내기
+
+.cors() //코스 정책 설정하는 이유에 대해서 공부하기
+           .csrf().disable()
+           .httpBasic().disable()
+
+antMatchers()가 찾아보니, requestMatchers()로 바뀜. 
+JwtProvider cannot be resolved to a typeJava(16777218) 이 에러가 계속 떠서 어캐 해결하나 했는데, 지우고 다시 쓰니까 해결됨 ? ? 왠진모름
+requestMatchers는 해당 요청에 대해서 매칭되는 구문이 잇는거들에 대한 처리, http매소드로 분류하는 것도 가능, null처리해도됨
+=> restAPI 명세서보고 헤더에 인증이 필요한 것들은 냅두고, 인증이 필요없는 것들에 대해서는 permitAll()
+
+**는 전체, *는 하나만 오는 특정 형태만
+
+.exceptionHandling().authenticationEntryPoint(new FailedAuthenticatonEntryPoint());
+=> 위에 내용들이 아마 인증과 관련된 것들, 특히 requestMatchers를 통해 권한 허용들, 여기서 exception터지만, NP오류이므로, 
+아래에 FailedAuthenticatonEntryPoint에 NP코드랑 json형태의 response 반환
+contentType 정하고, status 정하고, writer로 응답 적어주기
+
+원래는 JwtProvider에 secret key를 하드코딩으로 넣어놨는데 보안에 취약하니, 
+resources에 application properties에 넣어놓고
+@Value("${secret-key}")
+    private String secretKey; @Value 어노테이션을 통해서 전달받는 형식으로 만들기 가능
+
+17분 23초까지
+해결해야할 것
+1. JwtAuthenticationFilter.java파일에 JwtProvider 빈 등록 문제 해결하기, 롬복 문제일지도..?
+2. WebSecurityConfig.java파일에 인증 부분공부하고 .antMatchers()가 안되는 이유 해결하기
+3. exception.printStackTrace(); exception왜 다 이걸로 출력시키는지
+
+
+200
+- 성공 : "SU" / "Success."
+
+400
+- 유효성 검증 실패 : "VF" / "Validation failed."
+- 중복된 이메일 : "DE" / "Duplicate email."
+- 중복된 전화번호 : "DT" / "Duplicate tel number."
+- 중복된 닉네임 : "DN" / "Duplicate nickname."
+- 존재하지 않는 유저 : "NU" / "This user does not exist."
+- 존재하지 않는 게시물 : "NB" / "This board does not exist."
+
+401
+- 로그인 실패 : "SF" / "Login information mismatch."
+- 인증 실패 : "AF" / "Authorization failed."
+
+403
+- 권한 없음 : "NP" / "Do not have permission."
+
+500
+- 데이터베이스 에러 : "DBE" / "Database error."
+1.7 (10번째 강의)
+- common폴더에 위 http status코드와 메세지 반환하는 인터페이스를 구현
+- dto 폴더에 res와 req를 만들어서 res에 전체 다 쓰이는 DBE 코드 작성하고 나머지 에러는 이거 상속해서 쓴다함
+- 프론트로 가서 apis에 res req만들고 res에 파일 작성, types에서 enum형태로 작성 => 코드가 어떤 기능인지 공부필요.
+그리고 tsconfig.json 파일이 없어서 만들어주고, baseUrl 을 통해서 절대 경로로 올 수 있게금 허용해줌,
+
+1.8
+- 프론트와 백간의 http코드와 메세지 응답하는 거 구현함
+- 프론트에 import와 export가 있는데, import는 갖고오는거, tsconfig.json로 절대경로 허용해주고, export default는 외부에서 참조가능하게끔함
+- index.ts가 왜필요하냐? 라는 의문을 가졌는데, 약간 인터페이스느낌으로 모듈 사용의 편리성, 내보내기의 중앙 집중화, 다수요소 한곳에서 내보내기 
+등의 이유가 있고, 그리고 일종의 진입점(entry point) 역할을 한다.
+
+1.13~1.14
+프론트 건들기 시작
+게시글 만들기 시작함, boardItem으로 피그마에서 패딩이나, 그런거 박스 만들어서 구현
+각 필요한 인터페이스 구현, 게시글, 좋아요, 댓글에 필요한 것들 그리고 모두 export하게 index만들고
+mocks에서 최근 게시글 저장해놓고 App.tsx에서 그거 map해서 실행 //이거 문법 공부필요
+그리고 default profile image 왜 import 안돼서 const로 일단했는데, 왜 안되는지 공부필요
+컴포넌트, 함수, 렌더링, 이벤트 핸들러 모두 나눠서 코드 작성
+네비게이터 함수 아직 주석처리해놓음
+그리고 원래는 <div>값</div> 직접넣었는데, 인터페이스에서 properties 구현하고 그 props 값을 넣어줌
+string은 그냥 {} 안에 넣고, 값은 ${} 을 통해서 값 전달받음 약간 json형태로
+map 함수 이해하기
+탑3게시글, 일반 게시글 구현 (api x mock으로  )
+
+1.17
+input box 프론트 구현, 얘는 좀 많이 어려움
+인터페이스 props에서도 받아올 때, 변수형태도 선언해줌 그리고 이벤트 처리도 하고 함수형태도
+keyboardEvent랑 Dispatch 알아보기
+이벤트 핸들러 함수들
+ref와 input box에 받아오는게 되게 많음 있냐없냐에 따라서 변경되는거도
+=> 오늘은 app.tsx에서 하드코딩으로 받아오는 값 다 넣어놓고 넘어오는지 확인 잘 넘어옴.
+그리고 onKeyDown이 null일 때도 일단 return 시켜서 아무것도 없을 때도 작동시키게끔 설정
+그리고 app.tsx에서 useState에 대해서도 알아보자.
+이전 다른 index.tsx파일들은 rfc로 했는데, 왜 forwardRef쓰는지 알아볼 필요가 있다잉~
+
+1.23 
+메인에 index.tsx에 <BrowserRouter>로 App을 감싸준다.
+<Route path='/board'>
+        <Route path='detail/:boardNumber' element={<Main/>} /> 
+      </Route>
+      이렇게 더 상세로 들어갈 때는 크게 하나 묶고 안에는 /로 시작 안하고 그냥 들어가기
+경로지정해주고, 레이아웃에 컨테이너, 만들어줌.
+<Header />
+<Outlet />
+<Footer />
+이렇게 해서 화면에 해더 아웃렛 푸터 띄워주게 함. 아웃렛에 대해서 공부하자. 
+const {pathname} = useLocation();  useLocation도 공부하자. 이거는 리액트 돔 라이브러리꺼
+아마 pathname 경로이름 뜨게 해주는건데 {pathname} 띄우면 다 뜨더라고~~
+
+1.25
+헤더만들기, 우선 왼쪽 아이콘 홈버튼 네비게이트 함수로 
+const onLogoClickHandler = () => {
+  navigate(MAIN_PATH());
+} => 클릭시 메인화면으로 path 정해주기
+오른쪽 부분이 화면마다 좀 다름. 
+검색 아이콘을 누르면 status가 true로 바뀌고, 검색어 입력칸이 나오게됨. 
+useState와 이벤트 핸들러로, status false면 (기본 상태) true로 만들어줌 => (검색어 입력창 나오게끔)
+검색어 input칸에는 keyDown으로 엔터치면 넘어가게끔
+onSearchWordChangeHandler로 입력하고 나서 검색화면 갔을 때, 그 검색어가 남아있도록하는것
+path variable에 대해서 알아봐야함 특히, useEffect랑 useParams(이게 리액트 돔 훅함수)
+
+1.26
+로그인 버튼 랜더링으로 시작
+로그인 버튼이랑 마이페이지 (로그인 됐을 때) 버튼인데, 로그인 됐는지 확인하기위해 쿠키 사용
+-> npm i react-cookie 로 받아옴
+로그인버튼은 AUTH_PATH로 마이페이지는 USER_PATH('') 여기에 유저 정보로 넘어가짐
+zustand 받았는데 어떤건지 알아보기
