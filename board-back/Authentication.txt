@@ -191,3 +191,17 @@ if문으로 둘다 있으면 활성화버튼 해줌. 커서 not-allowed
 그러고 서치 버튼, 로그인 버튼 등이 페이지 경로마다 다르니까, 경로들이 맞는지에 대한 변수
 isMainPage = pathname.startsWith(MAIN_PATH());
 이런식으로 boolean형태의 변수 만들어줌.
+
+백엔드로 회원가입기능 구현할거임. 
+DTO에서 회원가입에 필요한것들 개터세터, 필수인것은 NotBlank로
+그리고 각 요소에 대한 어노테이션 확인하기
+notblank notempty는 문자열에서만 쓸 수 있고, notnull은 참조형 변수에 대해서 다 쓸 수있음
+@AssertTrue => true가 아니면 받을 수 없게 (개인정보 동의서)
+
+성공에 대한 메세지를 작성 (response에도 signupDto새로 만들고)
+기존에 리스폰스 디티오 확장해서 사용
+Validation fail이랑 db error는 알아서 내보내줄거여서,
+다른 오류 메세지에 대해서만 작성한다.
+
+-> 백에서 res, req dto 작성, 프론트에서 res req dto 작성
+공부할거 : 백에서 res dto 구조, dto자체에 대한 필요성에 대한 공부
