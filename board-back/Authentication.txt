@@ -205,3 +205,26 @@ Validation fail이랑 db error는 알아서 내보내줄거여서,
 
 -> 백에서 res, req dto 작성, 프론트에서 res req dto 작성
 공부할거 : 백에서 res dto 구조, dto자체에 대한 필요성에 대한 공부
+
+SearchButtonRef => 위에 엔터키 말고도 검색 버튼 직접 누르면 넘어가게끔 해놓는거임.
+
+1.28
+repository entity 구현
+유저 entity먼저만들기 - primary key가 email이니까 @Id 어노테이션 붙여주기
+entity에대한 repository만들어줘야하니, 인터페이스로 구현하고, JpaRepository 확장. 제너릭을어떤 엔터티, 
+그리고 그 pk의 변수형태로 두개를 받아준다.
+
+board 테이블에 대한 entity를 만들어주는데, 보드 넘버가 pk인데, 얘는  auto Increment가 되어야하니,
+@GeneratedValue(strategy = GenerationType.IDENTITY) 이 어노테이션을 통해 구현.
+
+favorite같은경우에는 PK가 두개임 즉 복합키, 그러면 확장자 넘겨줄 때, 어떻게 하냐?
+entity에 primaryKey폴더 만들고, FavoritePk.java파일 만들고 거기에 두개다 지정해줌.
+=> implements Serializable에 대해서 공부하기.
+@Column을 통해서 pk지정. 그러고 그 자바 클래스를 확장자에 넣어줌. 그러면 복합키 넘겨주기 가능함.
+그러고 entity에 @IdClass(FavoritePk.class) 이거 추가해줘야함.
+
+* image 테이블에 PK가 없어서 추가해줌. DDL에 추가.
+ALTER TABLE `image` ADD COLUMN `sequence` INT PRIMARY KEY AUTO_INCREMENT COMMENT '이미지 번호';
+
+@Table(name="") 이거하는 이유가 클래스 이름을 해줬으면 바로 찾아가는데, SearchLogEntity 이런식으러
+entity를 붙여서 못 찾아가서 table어노테이션을 붙여주는거임.
