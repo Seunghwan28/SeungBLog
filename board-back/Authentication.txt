@@ -228,3 +228,49 @@ ALTER TABLE `image` ADD COLUMN `sequence` INT PRIMARY KEY AUTO_INCREMENT COMMENT
 
 @Table(name="") 이거하는 이유가 클래스 이름을 해줬으면 바로 찾아가는데, SearchLogEntity 이런식으러
 entity를 붙여서 못 찾아가서 table어노테이션을 붙여주는거임.
+
+1.30
+service에 회원가입 API 인터페이스 작성하고 impl에 구현체 작성 //인터페이스 구조 공부해야함
+그리고 DB에 접근해야하니, repository 생성자를 만들어줘야하는데
+@Autowired
+    private final UserRepository userRepository;
+
+    @Autowired
+    public AuthServiceImplement(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    이렇게 3가지 방식, 필드, 생성자, setter매소드
+스프링에서 권장하는 것은 생성자 주입,, 필드하고 새터는 비어있는 상태가 발생하는데, 그 상태를 만들지 않는 경우가
+생성자를 통한 방법임.
+
+롬복을 활용해서 final로 지정하면 매번 생성자 안 만들어도, 자동으로 생성자 만들어줌. => 알아서 의존성 주입됨.
+
+회원가입에 대해서 여러가지 요소 중 이메일, 전번, 닉네임  중복이 되면 안되니
+유저 리포지토리에서 이렇게 existsBy 쿼리를 사용하면, 존재하면 true반환하는 것
+boolean existsByEmail(String email);
+boolean existsByNickname(String nickname);
+boolean existsByTelNumber(String telNumber);
+
+이러고 api에서 존재하면 true면 signupresoponseDto.duplicate 이런식으로 만들어논거 반환
+
+비밀번호 받아오는데 저장할 때 암호화 jpa security활용 인코더
+private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+이렇게 인코더를 선언해줌. 그러고 String encodedPassword = passwordEncoder.encode(password);
+새로운 변수에다가 encode 함수를 활용해서 넣어줌.
+=> UserEntity userEntity = new UserEntity(dto); 이렇게!
+근데 생성자가 없기에, 오류가 떠서 유저엔티티 가서 생성자 만들어줌. (dto를 매개변수로 받고 get해줌)
+
+엔터티는 DB 테이블의 하나의 레코드이므로, 
+userRepository.save(userEntity);
+이렇게 리포지토리를 활영해서 엔터티 하나 바로 세이브 가능
+
+controller만들고, requestbody를 매개변수로 받아와서, authService의 signUp을 거펴서 그 response값을 리턴
+
+컨트롤러에는 비즈니스 로직이 적히면 안됨. request를 받고 검증처리를 하고 response를 보내는 구역
+실제 비즈니스는 service에서 진행이 되어야함. => 왜일까?

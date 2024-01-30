@@ -16,9 +16,10 @@ public class SignUpResponseDto extends ResponseDto {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
     }
 
+    //Postman 작업 때문에 header("WWW-Authentication") 붙여놈!
     public static ResponseEntity<SignUpResponseDto> success() {
         SignUpResponseDto result = new SignUpResponseDto();
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).header("WWW-Authentication").body(result);
     }
 
     public static ResponseEntity<ResponseDto> duplicateEmail() {
