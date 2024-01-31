@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.seungg.boardback.dto.request.auth.SignUpRequestDto;
 import com.seungg.boardback.dto.response.auth.SignUpResponseDto;
+import com.seungg.boardback.dto.request.auth.SignInRequestDto;
+import com.seungg.boardback.dto.response.auth.SignInResponseDto;
 import com.seungg.boardback.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -25,6 +27,14 @@ public class AuthController {
         @RequestBody @Valid SignUpRequestDto requestBody
     ) {
         ResponseEntity<? super SignUpResponseDto> response = authService.signUp(requestBody);
+        return response;
+    }
+
+    @PostMapping("/sign-in")
+    public ResponseEntity<? super SignInResponseDto> signIn(
+        @RequestBody @Valid SignInRequestDto requestBody
+    ) {
+        ResponseEntity<? super SignInResponseDto> response = authService.signIn(requestBody);
         return response;
     }
 }

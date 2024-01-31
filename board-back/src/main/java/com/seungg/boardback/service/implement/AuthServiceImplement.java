@@ -5,10 +5,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.seungg.boardback.dto.request.auth.SignInRequestDto;
 import com.seungg.boardback.dto.request.auth.SignUpRequestDto;
 import com.seungg.boardback.dto.response.ResponseDto;
+import com.seungg.boardback.dto.response.auth.SignInResponseDto;
 import com.seungg.boardback.dto.response.auth.SignUpResponseDto;
 import com.seungg.boardback.entity.UserEntity;
+import com.seungg.boardback.provider.JwtProvider;
 import com.seungg.boardback.repository.UserRepository;
 import com.seungg.boardback.service.AuthService;
 
@@ -20,6 +23,7 @@ public class AuthServiceImplement implements AuthService{
 
     private final UserRepository userRepository;
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final JwtProvider jwtProvider;
 
    
     @Override
@@ -57,5 +61,34 @@ public class AuthServiceImplement implements AuthService{
 
         
     }
+
+
+    @Override
+    public ResponseEntity<? super SignInResponseDto> signIn(SignInRequestDto dto) {
+
+        String token = null;
+
+        try {
+            String email = dto.getEmail();
+            UserEntity userEntity = userRepository.findByEmail(email);
+            if(userEntity == null) return SignInResponseDto.signInfailed();
+
+            String password = dto.getPassword();
+            String encodedPassword = userEntity.getPassword();
+            boolean isMatched = passwordEncoder.matches(password, encodedPassword);
+            if(!isMatched) return SignInResponseDto.signInfailed();
+
+            token = jwtProvider.create(email);
+
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return SignInResponseDto.success(token);
+    }
+
+
+    
     
 }
