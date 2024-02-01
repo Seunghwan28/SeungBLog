@@ -274,3 +274,12 @@ controller만들고, requestbody를 매개변수로 받아와서, authService의
 
 컨트롤러에는 비즈니스 로직이 적히면 안됨. request를 받고 검증처리를 하고 response를 보내는 구역
 실제 비즈니스는 service에서 진행이 되어야함. => 왜일까?
+
+1.31
+로그인 API 이메일 비밀번호 필수로받고
+token과 expirationTime jwtProvider에서 1시간으로 잡아서, 만료시가은 3600으로
+signinfail만 만들고 (token안가져와도됨.), validation fail은 알아서 될거임.
+UserEntity userEntity = UserRepository.findByEmail(); 
+를 위해서 유저 리포지토리에 매소드 만들기
+UserEntity findByEmail(String email);
+근데 존재하는 1개 혹은 존재하지 않으면  0개 반환이니까 list로 받을 필요는 없다.

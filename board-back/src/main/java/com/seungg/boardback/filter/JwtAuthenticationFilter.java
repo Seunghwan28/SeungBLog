@@ -26,23 +26,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 
     private final JwtProvider jwtProvider;
 
-    @Override
+    @Override 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         try{
             String token = parseBearerToken(request); //밑에서 토큰 따오기
 
-        if(token==null) { //따온게 null이면, 즉 잘못된경우 필터에서 걸러서 controller로 안 보냄
-            filterChain.doFilter(request, response); //바로 내보내기
-            return;
-        }
-
-        String email = jwtProvider.validate(token); //email꺼내오기
-        if(email==null) {
-            filterChain.doFilter(request, response); //email이 null은 토큰 만료됐거나, signing key가 안 맞거나
-            return;
-        }
+            if(token==null) { //따온게 null이면, 즉 잘못된경우 필터에서 걸러서 controller로 안 보냄
+                filterChain.doFilter(request, response); //바로 내보내기
+                return;
+            }
+    
+            String email = jwtProvider.validate(token); //email꺼내오기
+            if(email==null) {
+                filterChain.doFilter(request, response); //email이 null은 토큰 만료됐거나, signing key가 안 맞거나
+                return;
+            }
 
         AbstractAuthenticationToken authenticationToken = //filter에서 context에 등록하는 과정
            new UsernamePasswordAuthenticationToken(email, null, AuthorityUtils.NO_AUTHORITIES); //id는 email, 비밀번호는 사용x여서 null, 권한은 일단 노권한
@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
             exception.printStackTrace();
         }
         filterChain.doFilter(request, response); //context에다가 이메일 넣어줬으면 다음 필터로 넘김
-
+      
     }
 
     private String parseBearerToken(HttpServletRequest request) {
@@ -69,8 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
         boolean isBearer = authorization.startsWith("Bearer "); //그 뽑아온게 bearer토큰인지 보는 것
         if(!isBearer) return null; //아니면 null리턴
 
-        String token = authorization.substring(7); //bearer로시작하니까 7번째부터 따오면 됨
-        return token;
+        return authorization.substring(7); //bearer로시작하니까 7번째부터 따오면 됨
     }
 
 }
