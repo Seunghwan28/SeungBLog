@@ -18,6 +18,29 @@
 
 .black-button:hover {
     background-color: rgba(0,0,0,0.7);
+    transition: all 0.5s;
+}
+
+.black-large-full-button {
+    width: 100%;
+    height: 48px;
+    display: flex;
+    border-radius: 46px;
+    background-color: rgba(0,0,0,1);
+    justify-content: center;
+    align-items: center;
+    transition: all 0.5s;
+    
+    color: rgba(255,255,255,1);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 140%;
+    cursor: pointer;
+}
+
+.black-large-full-button:hover {
+    background-color: rgba(0,0,0,0.7);
+    transition: all 0.5s;
 }
 
 .disable-button {
