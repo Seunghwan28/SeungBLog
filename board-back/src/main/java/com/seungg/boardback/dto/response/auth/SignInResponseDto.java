@@ -13,12 +13,12 @@ import lombok.Getter;
 public class SignInResponseDto extends ResponseDto {
 
     private String token;
-    private int expiratonTime;
+    private int expirationTime;
 
     private SignInResponseDto(String token) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
         this.token = token;
-        this.expiratonTime = 3600;
+        this.expirationTime = 3600;
     }
 
     public static ResponseEntity<SignInResponseDto> success(String token) {

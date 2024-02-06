@@ -297,3 +297,17 @@ const [view, setView] = useState<'sign-in'|'sign-up'>('sign-in'); 리터럴 상�
 로그인 회원가입에 대한 박스 만들고 api를 위해서 apis에 signIn dto 만들고, apis index.ts에 
 도메인이랑 url지정해줌. 넘기는 requestBody타입 dto로
 inputBox들에 대해서도 공부 완.
+
+2.6 
+axios받고 async, await에 대해서 공부해야함.
+post매소드 url에 requestbody를 보낸거에 대해서 response올때까지 await
+responseBody라는 변수를 SignInResponseDto 타입으로 받아오고 리턴해줌.
+
+에러시 (4, 500번대 코드) => catch로 에러 조율
+
+=> 로그인버튼 클릭시 핸들러 함수 구현
+requestBody를 SignInrequestDto형태로 이메일과 비번받아오고,
+signInRequest에 body를 넘겨주고, 그 결과로 signInResponse를 한다.
+그 기능을 위에 따로 구현
+
+code꺼내와서 에러처리 다해주고, 성공일시, responseBody에서 token과 만료시간을 꺼내온다.
