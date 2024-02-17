@@ -113,6 +113,7 @@ const SearchButton = () => {
     //          event Handler: 로그아웃 버튼 클릭 처리 함수              //
     const onSignOutButtonClickHandler = () => {
       resetLoginUser();
+      setCookie('accessToken','',{ path: MAIN_PATH(), expires: new Date() });
       navigate(MAIN_PATH());
     } 
 
@@ -127,6 +128,11 @@ const SearchButton = () => {
   //          render : 로그인 버튼 컴포넌트 랜더링          //
   return <div className='black-button' onClick={onSignInButtonClickHandler}>{'로그인'}</div>;
   };
+
+  //           effect: loginUser 변결될때마다 실행되는 함수          //
+  useEffect(() => {
+    setLogin(loginUser !== null);
+  }, [loginUser]);
 
   //             component: 업로드 버튼 컴포넌트            //
   const UploadButton = () => {
@@ -155,6 +161,8 @@ const SearchButton = () => {
   const isBoardUpdatePage = pathname.startsWith(BOARD_PATH()+"/"+BOARD_UPDATE_PATH(''));
   const isBoardWritePage = pathname.startsWith(BOARD_PATH()+"/"+BOARD_WRITE_PATH());
   const isUserPage = pathname.startsWith(USER_PATH(''));
+
+  
 
    //          render : 헤더 레이아웃 렌더링         //
   return (

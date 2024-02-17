@@ -35,46 +35,42 @@ public class WebSecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
-    public CorsConfigurationSource configurationSource() {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.addAllowedOrigin("localhost:3001");
-        corsConfiguration.addAllowedMethod("*");
-        corsConfiguration.addAllowedHeader("*");
-        corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setMaxAge(3600L); //preflight 결과를 1시간동안 캐시에 저장
+    protected CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("*");
+        configuration.addAllowedMethod("*");
+        configuration.addExposedHeader("*");
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfiguration);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception{
         httpSecurity
-           .cors(Customizer.withDefaults())
+           .cors(cors -> cors
+                .configurationSource(corsConfigurationSource()) 
+           )
            .csrf(CsrfConfigurer::disable)
            .httpBasic(HttpBasicConfigurer::disable)
            .sessionManagement(sessionManagement ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests
-                .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/auth/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/api/v1/search/**")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/file/**")).permitAll()
-                .requestMatchers(HttpMethod.GET,"/api/v1/board/**", "/api/v1/user/*").permitAll()
-                .requestMatchers(HttpMethod.GET,"/api/v1/user/*").permitAll() //board의 get들은 다 허용
+           sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+           )
+           .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                .requestMatchers("/", "/api/v1/auth/**", "/api/v1/search/**", "/file/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/board/**", "/api/v1/user/*").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(authenticationManager -> authenticationManager
-                        .authenticationEntryPoint(new FailedAuthenticatonEntryPoint()))
+                        .authenticationEntryPoint(new FailedAuthenticatonEntryPoint())
+            )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
-
     }
 
 }
+
 
 class FailedAuthenticatonEntryPoint implements AuthenticationEntryPoint{
 
