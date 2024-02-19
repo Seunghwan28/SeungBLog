@@ -1,3 +1,8 @@
+.divider {
+    width: 100%;
+    border-top: 1px solid rgba(0,0,0,0.2);
+}
+
 .black-button {
     background-color: rgba(0,0,0,1);
     color: rgba(255,255,255,1);
@@ -154,4 +159,12 @@
 
 .check-ring-light-icon {
     background-image: url(assets/image/check-ring-light.png);
+}
+
+.image-box-light-icon {
+    background-image: url(assets/image/image-box-light.png);
+}
+
+.close-icon {
+    background-image: url(assets/image/close.png);
 }
