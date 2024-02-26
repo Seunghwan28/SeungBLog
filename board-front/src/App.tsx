@@ -28,7 +28,7 @@ import User from 'types/interface/user.interface';
 
 //         component: Application 컴포넌트         //
 function App() {
-  
+
 
   //         state: 로그인 유저 전역 상태          //
   const {setLoginUser, resetLoginUser} = useLoginUserStore();

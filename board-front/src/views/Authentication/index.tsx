@@ -53,6 +53,7 @@ export default function Authentication() {
 
     //               function: sign in response 처리 함수               //
     const signInResponse = (responseBody: SignInResponseDto | ResponseDto | null) => {
+      console.log(responseBody);
       if(!responseBody) { //null인경우, 백엔드가 안켜졌을 때
         alert('네트워크 상태를 확인해주세요.');
         return;
@@ -93,7 +94,8 @@ export default function Authentication() {
     
     //          event handler: 로그인 버튼 클릭 이벤트 처리 함수              //
     const onSignInButtonClickHandler = () => {
-      const requestBody: SignInRequestDto = { email, password  };
+      const requestBody: SignInRequestDto = {email, password};
+      console.log(requestBody);
       signInRequest(requestBody).then(signInResponse);
     }
 

@@ -327,3 +327,88 @@ for문 활용해서, 받아온 image 하나하나 조회하는 느낌으로
 그리고 그 이미지 배열들을 이미지db에 한꺼번에 저장시킨다.
 
 그러고 컨트롤러
+
+
+2.18
+전에도 얘기했듯이, 헤더에 업로드 버튼이 있기에, 컴포넌트를 바디부분에 넣어놓음녀 업로드 버튼 클릭해도 백엔드로 못 넘어감
+그래서, 제목 내용 이미지 파일 등등을 모두 전역으로 선언을 해줘야함.
+=> stores에 boardstore ts => zustand로 만들었었지.
+
+배열로 저장해놓고, 반복문으로 돌면서 보여지게끔 (image box부분)
+
+2.20
+
+제목이랑 내용에 대해서 textarea로 스크롤 없애고, scrollHeight줌
+
+ const imageUrl = URL.createObjectURL(file);
+    const newImageUrls = imageUrls.map(item => item);
+    newImageUrls.push(imageUrl);
+    setImageUrls(newImageUrls);
+    얘는 미리보기용
+
+    const newBoardImageFileList = boardImageFileList.map(item => item);
+    newBoardImageFileList.push(file);
+    setBoardImageFileList(newBoardImageFileList);
+    얘는 백엔드로 업로드 하기용으로 돌리기
+
+이미지 업로드와 이미지 삭제에 대해서 코드 구현하고
+imageInputRef.current.value = ''; 이거는 이제 중복된 사진을 올릴시
+ref가 같기때문에 다른 사진임을 인식하지 않아, 같은 사진은 올라가지지 않았다 그래서 올리고, ''빈값으로 바꿔줘야 다시가능
+
+const file = event.target.files[0]; 왜 배열의 [0]인지 이해가안감 공부해야함.
+
+2.23
+파일 업로드 api연동하는데, 파일 업로드가 formData형태로 요청을 받고, 옵션에
+const multipartFormData = {headers: {'Content-Type':'multipart/form-data'}};
+이거를 추가해줌. 멀티파트폼데이타 (이미지 업로드)
+
+게시글 업로드 (보드)는 requestBody랑 토큰(로그인된 유저에 대해서만)을 요청으로 받아와서 api연동
+foreach는 동기처리가 안됨 그래서 async 걸어여함.
+
+프론트 request에서 토큰 꺼내와서 토큰 없으면 리턴
+게시글에 이미지 파일리스트가 있는데, 이는 파일 형태라,
+string url이 필요 --=> 반복문 돌리는데, 새로운 폼데이터 형태의 data 만들어주고,
+const url = await fileUploadRequest(data);
+        if(url) boardImageList.push(url);
+
+업로드 될때까지 기다리고, 그 url이 있으면 저기 배열에 푸쉬해준다.
+resetBoard();
+      if(!loginUser) return;
+      const {email} = loginUser;
+      navigate(USER_PATH(email));
+
+작성이 되면 리셋보드로 게시글 작성한거 다 없애고, 네비게이트로 마이페이지로 가게끔해준다.
+
+2.26
+게시물 상세페이지에서
+게시물 불러오기, 좋아요 리스트 불러오기, 좋아요 누르기, 댓글 작성하기, 댓글 리스트 불러오기
+총 5개의 api가 필요하다.
+
+게시물 불러오기는 getBoard로 요청은 없고 response만 dto를 만드러준다
+
+보드 엔티티 만으로는 다 불러올 수 없다. 왜냐면 닉네임이나 그런거는 user 테이블에서 조인해서 사용한거라 
+이럴때 네이티브 쿼리문을 사용해야한다.
+
+@query 로 밸류를 활ㅇㅇ해서 DML 쿼리문 그대로 복붙 근데 이제 string형태다 보니 띄어쓰기 꼭 넣어주시
+네이티브쿼리 true
+보드넘버가 달라져야하니, ?1 하면 매개변수의 첫번째값을 여기에 넣겠다 라는 뜻으로 작용됨
+반환형태가 boardEntity타입인데, 얘는 USer 테이블도 사용을하니 이를 해결하기 위해서 리포지토리에 다 받을 수 있는
+인터페이스를 하나 생성해줄거임. getBoardResultSet이라고
+
+서비스 임플에서, 보드넘버로 resultset을 갖고오고 없으면 보드존재x 오류 반환하고
+있으면 이미지 리포지토리에서도 보드넘버로 찾는 매소드 만들어주고, 최종 resultSet과 imageEntity를 success에 넘겨준다 매개변수로
+받으면, 하나하나 다 넣어주는 작업.(DTO 응답에서)
+받아온 resultSet은 다 넣어주고 imageEntity는 따로 빼서 
+List<String> boardImageList = new ArrayList<>();
+        for(ImageEntity imageEntity: imageEntities) {
+            String boardImage = imageEntity.getImage();
+            boardImageList.add(boardImage);
+        }
+
+이거를 활용해서 하나하나 다 넣고, 그거를 응답에 넣어준다.
+
+이거다 하면 조회하면 조회수가 올라가야하니, 보드 리포지토리에서 보드넘버로 findBy를 해서 보드엔티티를 찾고,
+보드 엔티티에서 조회수 하나 올리는 매소드를 만들고, 그 increaseViewCount() 를 호출한 후 save 보드 엔티티를 해도된다
+아니면  보드 리포지토리 쿼리문에서 viewCount 하나 올려주는 업데이트 쿼리를 써도됨
+
+컨트롤러에서는 getMapping으로 pathVariable에 보드넘버가 들어간다.

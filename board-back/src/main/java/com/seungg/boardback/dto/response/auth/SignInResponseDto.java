@@ -23,11 +23,11 @@ public class SignInResponseDto extends ResponseDto {
 
     public static ResponseEntity<SignInResponseDto> success(String token) {
         SignInResponseDto result = new SignInResponseDto(token);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        return ResponseEntity.status(HttpStatus.OK).header("http://localhost:3001").body(result);
     }
 
     public static ResponseEntity<ResponseDto> signInfailed() {
         ResponseDto result = new ResponseDto(ResponseCode.SIGN_IN_FAILED,ResponseMessage.SIGN_IN_FAILED);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).header("Authorization").body(result);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).header("http://localhost:3001").body(result);
     } 
 }
