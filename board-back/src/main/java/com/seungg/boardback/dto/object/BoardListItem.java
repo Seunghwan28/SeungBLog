@@ -18,4 +18,6 @@ public class BoardListItem {
     private String writeDateTime;
     private String writerNickname;
     private String WriterProfileImage;
+
+    
 }

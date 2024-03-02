@@ -31,6 +31,5 @@ public class FavoriteListItem {
             list.add(favoriteListItem);
         }
         return list;
-
     }
 }

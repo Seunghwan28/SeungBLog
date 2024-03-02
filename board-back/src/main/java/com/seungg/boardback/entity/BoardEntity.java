@@ -3,9 +3,9 @@ package com.seungg.boardback.entity;
 import com.seungg.boardback.dto.request.board.PostBoardRequestDto;
 
 
-import java.util.*;
-import java.text.*;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -33,14 +33,13 @@ public class BoardEntity {
 
     public BoardEntity(PostBoardRequestDto dto, String email) {
 
-        Date now = Date.from(Instant.now());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        String writeDatetime = simpleDateFormat.format(now);
+        LocalDateTime writeDatetime = LocalDateTime.now(); 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDatetime = writeDatetime.format(formatter);
 
         this.title = dto.getTitle();
         this.content = dto.getContent();
-        this.writeDatetime = writeDatetime;
+        this.writeDatetime = formattedDatetime;
         this.favoriteCount = 0;
         this.commentCount = 0;
         this.viewCount = 0;
@@ -57,6 +56,14 @@ public class BoardEntity {
 
     public void decreaseFavoriteCount() {
         this.favoriteCount--;
+    }
+
+    public void increaseCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decreaseCommentCount() {
+        this.commentCount--;
     }
 
 }

@@ -8,6 +8,11 @@ import com.seungg.boardback.repository.resultSet.GetBoardResultSet;
 
 import java.util.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -38,7 +43,11 @@ public class GetBoardResponseDto extends ResponseDto{
         this.title = resultSet.getTitle();
         this.content = resultSet.getContent();
         this.boardImageList = boardImageList;
-        this.writeDatetime = resultSet.getWriteDatetime();
+        
+        LocalDateTime datetime = LocalDateTime.parse(resultSet.getWriteDatetime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S"));
+        ZonedDateTime zonedDatetimeUTC = datetime.atZone(ZoneId.of("UTC"));
+        this.writeDatetime = zonedDatetimeUTC.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        
         this.writerEmail = resultSet.getWriterEmail();
         this.writerNickname = resultSet.getWriterNickname();
         this.writerProfileImage = resultSet.getWriterProfileImage();

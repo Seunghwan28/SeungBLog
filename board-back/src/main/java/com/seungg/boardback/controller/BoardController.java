@@ -11,9 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.seungg.boardback.dto.request.board.PostBoardRequestDto;
 import com.seungg.boardback.dto.response.board.PostBoardResponseDto;
+import com.seungg.boardback.dto.request.board.PostCommentRequestDto;
+import com.seungg.boardback.dto.response.board.PostCommentResponseDto;
 import com.seungg.boardback.dto.response.board.PutFavoriteResponseDto;
 import com.seungg.boardback.dto.response.board.GetBoardResponseDto;
 import com.seungg.boardback.dto.response.board.GetFavoriteListResponseDto;
+import com.seungg.boardback.dto.response.board.GetCommentListResponseDto;
+
 import com.seungg.boardback.service.BoardService;
 
 import jakarta.validation.Valid;
@@ -60,6 +64,24 @@ public class BoardController {
     ) {
         ResponseEntity<? super PutFavoriteResponseDto> response = boardService.putFavorite(boardNumber, email);
         return response;
+    }
+
+    @PostMapping("/{boardNumber}/comment") 
+    public ResponseEntity<? super PostCommentResponseDto> postComment(
+        @RequestBody @Valid PostCommentRequestDto requestBody,
+        @PathVariable("boardNumber") Integer boardNumber,
+        @AuthenticationPrincipal String email
+    ) {
+        ResponseEntity<? super PostCommentResponseDto> response = boardService.postComment(requestBody, boardNumber, email);
+        return response;
+    }
+
+    @GetMapping("/{boardNumber}/comment-list")
+    public ResponseEntity<? super GetCommentListResponseDto> getCommentList(
+    @PathVariable("boardNumber") Integer boardNumber
+    ) {
+    ResponseEntity<? super GetCommentListResponseDto> response = boardService.getCommentList(boardNumber);
+    return response;
     }
 
     
