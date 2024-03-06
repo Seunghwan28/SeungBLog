@@ -4,7 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { BOARD_PATH, AUTH_PATH, BOARD_DETAIL_PATH, BOARD_UPDATE_PATH, BOARD_WRITE_PATH, MAIN_PATH, SEARCH_PATH, USER_PATH } from 'constant'
 import { useCookies } from 'react-cookie'
 import { useBoardStore, useLoginUserStore } from 'stores'
-import { fileUploadRequest, postBoardRequst } from 'apis'
+import { fileUploadRequest, postBoardRequest } from 'apis'
 import { PostBoardRequestDto } from 'apis/request/board'
 import { PostBoardResponseDto } from 'apis/response/board'
 import ResponseDto from 'apis/response/response.dto'
@@ -179,7 +179,7 @@ const SearchButton = () => {
       const requestBody: PostBoardRequestDto = {
         title, content, boardImageList
       }
-      postBoardRequst(requestBody, accessToken).then(postBoardResponse);
+      postBoardRequest(requestBody, accessToken).then(postBoardResponse);
     }
 
     //              render: 업로드 버튼 컴포넌트 랜더링            //
