@@ -2,6 +2,7 @@ package com.seungg.boardback.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import com.seungg.boardback.dto.response.board.IncreaseViewCountResponseDto;
 import com.seungg.boardback.dto.response.board.GetBoardResponseDto;
 import com.seungg.boardback.dto.response.board.GetFavoriteListResponseDto;
 import com.seungg.boardback.dto.response.board.GetCommentListResponseDto;
+import com.seungg.boardback.dto.response.board.DeleteBoardResponseDto;
 
 import com.seungg.boardback.service.BoardService;
 
@@ -91,6 +93,16 @@ public class BoardController {
         @PathVariable("boardNumber") Integer boardNumber 
     ) {
         ResponseEntity<? super IncreaseViewCountResponseDto> response = boardService.increaseViewCount(boardNumber);
+        return response;
+
+    }
+
+    @DeleteMapping("/{boardNumber}")
+    public ResponseEntity<? super DeleteBoardResponseDto> deleteBoard(
+        @PathVariable("boardNumber") Integer boardNumber,
+        @AuthenticationPrincipal String email
+    ) {
+        ResponseEntity<? super DeleteBoardResponseDto> response = boardService.deleteBoard(boardNumber, email);
         return response;
 
     }

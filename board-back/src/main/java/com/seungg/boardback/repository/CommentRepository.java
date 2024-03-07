@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import com.seungg.boardback.entity.CommentEntity;
 import com.seungg.boardback.repository.resultSet.GetCommentListResultSet;
 
+import jakarta.transaction.Transactional;
+
 @Repository
 public interface CommentRepository extends JpaRepository<CommentEntity, Integer> {
 
@@ -27,5 +29,8 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Integer>
     nativeQuery = true
 )
     List<GetCommentListResultSet> getCommentList(Integer boardNumber);
+
+    @Transactional
+    void deleteByBoardNumber(Integer boardNumber);
     
 }

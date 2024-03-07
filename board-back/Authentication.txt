@@ -476,3 +476,55 @@ getMapping으로 해주고 뭐 리턴하는거없이 오류에 대해서만 건�
     setWriter(isWriter);
 
 로그인도 안돼있으면 걍 false고 로그인이돼있으면 작성자이메일과 비교해서 맞으면 true아니면 또 false.
+
+3.6
+다른 api연동하기 전에, 로그인이 되어있는 상태가 아니라면, 댓글 달기 칸이 안 보이게함.
+타임 포맷 맞추고, 똑같이 api 연동작업
+response에서 내가 좋아요가 안눌러진 상태라면 isFavorite false로 해놓게 끔!
+const isFavorite = favoriteList.findIndex(favorite => favorite.email === loginUser.email) !== -1;
+존재하지 않으면 -1을 내보내줄거고, 그러면  isFavorite에 false가 저장이된다.
+
+ㅇcommentList 그대로 하고, 근데 시간을 어떻게 하냐,
+//             function: 작성일 경과 시간 함수           //
+    const getElapsedTime = () => {
+        const now = dayjs().add(9, 'hour');
+        const writeTime = dayjs(writeDatetime);
+
+        const gap = now.diff(writeTime, 's');
+        if(gap < 60) return `${gap}초 전`;
+        else if(gap < 3600) return `${Math.floor(gap / 60)}분 전`;
+        else if(gap < 86400) return `${Math.floor(gap / 3600)}시간 전`;
+        else return `${Math.floor(gap / 86400)}일 전`;
+    }
+
+    commponent에서 commentItem에서 시간 차이 함수 넣어줌.
+
+    3.6 -2
+    게시글 삭제 api구현
+    NB NU NP 에러 작업.dto
+
+    요청으로 받아온 email과 boardEntity에서 찾은 게시글의 작성자 이메일을 비겨해서 같지않으면 NP로 반환
+    같다면 이제삭제해야함
+    => Board DB를 참조하고 있는 모든 DB에 대해서 작업을 해줘야함.
+    참조하고 있는 각 DB에 
+    @Transactional
+    void deleteByBoardNumber(Integer boardNumber);
+    를 넣어준다. @Transactional을 꼭 붙여줘야함. => 이 친구의 기능에 대해서 알아보기
+
+    다 지우고나서야 boardEntity를 지울 수 있다.
+    => 55번 게시물 상세 페이지 좋아요 댓글 작성, 삭제 연동!
+
+    3.7 
+    게시물 좋아요, 삭제 api연동
+    put은 requestBody에 dto가 들어와야해서 걍 빈거 {}로 넣어줌.
+    putFavoriteResponse처리에서
+    getFavoriteListRequest(boardNumber).then(getFavoriteListResponse); 이렇게 처리 (여기에 눌럿으면 뜨게끔 다 구현해놈)
+
+    댓글 달기 
+    요청으로 content받아오고, 보드넘버 토큰 requestBody 3개 받음
+    getCommentListRequest(boardNumber).then(getCommentListResponse); 좋아요랑 똑같음.
+    근데 이제 setCOmment로 댓글 작성이 되면, 다시 빈값으로 처리
+
+    댓글 쭉쭉 나오는거 페이지네이션 ㄱㄱ
+
+    삭제 api연동 삭제버튼에서 오류 다 처리하고, 바로 메인페이지 네비게이트

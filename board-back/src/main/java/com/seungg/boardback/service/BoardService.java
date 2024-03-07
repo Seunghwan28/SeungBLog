@@ -11,6 +11,7 @@ import com.seungg.boardback.dto.response.board.PutFavoriteResponseDto;
 import com.seungg.boardback.dto.response.board.GetFavoriteListResponseDto;
 import com.seungg.boardback.dto.response.board.GetCommentListResponseDto;
 import com.seungg.boardback.dto.response.board.IncreaseViewCountResponseDto;
+import com.seungg.boardback.dto.response.board.DeleteBoardResponseDto;
 
 
 
@@ -22,4 +23,5 @@ public interface BoardService {
     ResponseEntity<? super PostCommentResponseDto> postComment(PostCommentRequestDto dto, Integer boardNumber,String email);
     ResponseEntity<? super GetCommentListResponseDto> getCommentList(Integer boardNumber);
     ResponseEntity<? super IncreaseViewCountResponseDto> increaseViewCount(Integer boardNumber);
+    ResponseEntity<? super DeleteBoardResponseDto> deleteBoard(Integer boardNumber, String email);
 }
