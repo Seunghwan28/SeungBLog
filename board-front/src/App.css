@@ -101,6 +101,14 @@
     justify-content: center;
 }
 
+.icon-box-small {
+    width: 16px;
+    height: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .icon-button {
     border-radius: 50% 50%;
 
@@ -133,8 +141,16 @@
     background-image: url(assets/image/eye-light-on.png);
 }
 
+.expand-right-icon {
+    background-image: url(assets/image/expand-right.png);
+}
+
 .expand-right-light-icon {
     background-image: url(assets/image/expand-right-light.jpg);
+}
+
+.expand-left-icon {
+    background-image: url(assets/image/expand-left.png);
 }
 
 .logo-light-icon {
@@ -200,3 +216,5 @@
 .comment-icon {
     background-image: url(assets/image/chat-light.png);
 }
+
+
