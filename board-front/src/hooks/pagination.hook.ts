@@ -65,7 +65,7 @@ const usePagination = <T>(countPerPage: number) => {
     useEffect(setView,[currentPage]);
 
     //              effect: current section이 변경될 때마다 실행할 작업             //
-    useEffect(setViewPage,[currentPage]);
+    useEffect(setViewPage,[currentSection]);
 
     return {
         currentPage,

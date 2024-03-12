@@ -11,8 +11,9 @@ import { BOARD_PATH, BOARD_UPDATE_PATH, MAIN_PATH, USER_PATH } from 'constant';
 import { getBoardRequest, getFavoriteListRequest, getCommentListRequest, increaseViewCountRequest, putFavoriteRequest, postCommentRequest, deleteBoardRequest } from 'apis';
 import { DeleteBoardResponseDto, GetBoardResponseDto, GetCommentListResponseDto, GetFavoriteListResponseDto, IncreaseViewCountResponseDto, PostCommentResponseDto, PutFavoriteResponseDto } from 'apis/response/board';
 import { ResponseDto } from 'apis/response';
-import { Cookies, useCookies } from 'react-cookie';
-import { PostBoardRequestDto, PostCommentRequestDto } from 'apis/request/board';
+import { useCookies } from 'react-cookie';
+import { PostCommentRequestDto } from 'apis/request/board';
+import { usePagination } from 'hooks';
 const defaultProfileImage = require('assets/image/default_profile_image.jpg');
 
 
@@ -179,11 +180,12 @@ export default function BoardDetail() {
     //           state: 댓글 textarea 참조 상태             //
     const commentRef = useRef<HTMLTextAreaElement | null>(null);
 
-    //           state: 좋아요 리스트 상태             //
-    const[favoriteList, setFavoriteList] = useState<FavoriteListItem[]>([]);
+    //           state: 페이지네이션 관련 상태            //
+    const {currentPage, setCurrentPage, currentSection, setCurrentSection, 
+          viewList, viewPageList, totalSection, setTotalList} = usePagination<CommentListItem>(3);
 
-    //           state: 댓글 리스트 상태 (임시)              //
-    const[commentList, setCommentList] = useState<CommentListItem[]>([]);
+    //           state: 좋아요 리스트 상태          //
+    const[favoriteList, setFavoriteList] = useState<FavoriteListItem[]>([]);
 
     //           state: 좋아요 상태               //
     const [isFavorite, setFavorite] = useState<boolean>(false);
@@ -196,6 +198,9 @@ export default function BoardDetail() {
 
     //           state: 댓글 상태            //
     const [comment,setComment] = useState<string>('');
+
+    //           state: 전체 댓글 갯수 상태           //
+    const [totalCommentCount, setTotalCommentCount] = useState<number>(0);
 
     //          function: get Favorite list Response처리 함수            //
     const getFavoriteListResponse = (responseBody: GetFavoriteListResponseDto | ResponseDto | null) => {
@@ -234,7 +239,8 @@ export default function BoardDetail() {
       }
 
       const {commentList} = responseBody as GetCommentListResponseDto;
-        setCommentList(commentList);
+        setTotalList(commentList);
+        setTotalCommentCount(commentList.length);
     }
 
     //          function: put favorite response 처리 함수            //
@@ -335,7 +341,7 @@ export default function BoardDetail() {
           <div className='icon-button'>
             <div className='icon comment-icon'></div>
           </div>
-          <div className='board-detail-bottom-button-text'>{`댓글 ${commentList.length}`}</div>
+          <div className='board-detail-bottom-button-text'>{`댓글 ${totalCommentCount}`}</div>
           <div className='icon-button' onClick={onShowCommentClickHandler}>
           {showComment ?
             <div className='icon up-light-icon'></div> :
@@ -357,14 +363,21 @@ export default function BoardDetail() {
     {showComment && 
     <div className='board-detail-bottom-comment-box'>
         <div className='board-detail-bottom-comment-container'>
-          <div className='board-detail-bottom-comment-title'>{'댓글 '}<span className='emphasis'>{commentList.length}</span></div>
+          <div className='board-detail-bottom-comment-title'>{'댓글 '}<span className='emphasis'>{totalCommentCount}</span></div>
           <div className='board-detail-bottom-comment-list-container'>
-            {commentList.map(item => <CommentItem commentListItem={item} />)}
+            {viewList.map(item => <CommentItem commentListItem={item} />)}
           </div>
         </div>
         <div className='divider'></div>
         <div className='board-detail-bottom-comment-pagination-box'>
-          <Pagination />
+          <Pagination 
+            currentPage={currentPage}
+            currentSection={currentSection}
+            setCurrentPage={setCurrentPage}
+            setCurrentSection={setCurrentSection}
+            viewPageList={viewPageList}
+            totalSection={totalSection}
+          />
         </div>
       </div>
       }

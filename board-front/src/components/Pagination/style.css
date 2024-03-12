@@ -1,0 +1,48 @@
+#pagination-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.pagination-change-link-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+
+    cursor: pointer;
+}
+
+.pagination-change-link-text {
+    color: rgba(0,0,0,0.7);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 140%;
+}
+
+.pagination-divider {
+    color: rgba(0,0,0,0.3);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 140%;  
+
+    cursor: default;
+}
+
+.pagination-text-active {
+    color: rgba(0,0,0,1);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 140%;  
+
+    cursor: default;
+}
+
+.pagination-text {
+    color: rgba(0,0,0,0.4);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 140%;  
+
+    cursor: pointer;
+}
