@@ -1,5 +1,6 @@
 package com.seungg.boardback.entity;
 
+import com.seungg.boardback.dto.request.board.PatchBoardRequestDto;
 import com.seungg.boardback.dto.request.board.PostBoardRequestDto;
 
 
@@ -44,6 +45,11 @@ public class BoardEntity {
         this.commentCount = 0;
         this.viewCount = 0;
         this.writerEmail = email;
+    }
+
+    public void patchBoard(PatchBoardRequestDto dto) {
+        this.title = dto.getTitle();
+        this.content = dto.getContent();
     }
 
     public void increaseViewCount() {

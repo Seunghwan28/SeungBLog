@@ -21,6 +21,9 @@ import com.seungg.boardback.dto.response.board.GetBoardResponseDto;
 import com.seungg.boardback.dto.response.board.GetFavoriteListResponseDto;
 import com.seungg.boardback.dto.response.board.GetCommentListResponseDto;
 import com.seungg.boardback.dto.response.board.DeleteBoardResponseDto;
+import com.seungg.boardback.dto.request.board.PatchBoardRequestDto;
+import com.seungg.boardback.dto.response.board.PatchBoardResponseDto;
+
 
 import com.seungg.boardback.service.BoardService;
 
@@ -103,6 +106,16 @@ public class BoardController {
         @AuthenticationPrincipal String email
     ) {
         ResponseEntity<? super DeleteBoardResponseDto> response = boardService.deleteBoard(boardNumber, email);
+        return response;
+    }
+
+    @PatchMapping("/{boardNumber}")
+    public ResponseEntity<? super PatchBoardResponseDto> patchBoard(
+        @RequestBody @Valid PatchBoardRequestDto requestBody,
+        @PathVariable("boardNumber") Integer boardNumber,
+        @AuthenticationPrincipal String email
+    ) {
+        ResponseEntity<? super PatchBoardResponseDto> response = boardService.patchBoard(requestBody, boardNumber, email);
         return response;
     }
     
