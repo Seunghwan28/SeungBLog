@@ -19,11 +19,11 @@ export default function BoardItem({boardListItem}: Props) {
     const {writeDatetime, writerNickname, writerProfileImage} = boardListItem;
 
     //             function: 내비게이트 함수            //
-    //const navigator = useNavigate();
+    //const navigate = useNavigate();
 
     //             event handler: 게시믈 아이템 클릭 이벤트 처리 함수            //
     const onClickHandler = () => {
-     //   navigator(boardNumber);
+     //   navigate(boardNumber);
     }
 
   //          render: Board List Item 렌더링          //

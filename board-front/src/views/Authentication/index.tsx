@@ -24,7 +24,7 @@ export default function Authentication() {
 
 
   //         function: 네이게이트 함수          //
-  const navigator = useNavigate();
+  const navigate = useNavigate();
 
 
   //          Component : Sign In card 컴포넌트          //
@@ -53,7 +53,6 @@ export default function Authentication() {
 
     //               function: sign in response 처리 함수               //
     const signInResponse = (responseBody: SignInResponseDto | ResponseDto | null) => {
-      console.log(responseBody);
       if(!responseBody) { //null인경우, 백엔드가 안켜졌을 때
         alert('네트워크 상태를 확인해주세요.');
         return;
@@ -73,7 +72,7 @@ export default function Authentication() {
 
       alert('로그인 성공! 환영합니다.');
   
-      navigator(MAIN_PATH());
+      navigate(MAIN_PATH());
     }
 
     //          event Handler: 이메일 변경 이벤트 처리          //
@@ -95,7 +94,6 @@ export default function Authentication() {
     //          event handler: 로그인 버튼 클릭 이벤트 처리 함수              //
     const onSignInButtonClickHandler = () => {
       const requestBody: SignInRequestDto = {email, password};
-      console.log(requestBody);
       signInRequest(requestBody).then(signInResponse);
     }
 

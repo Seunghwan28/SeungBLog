@@ -12,11 +12,11 @@ export default function FavoriteItem({favoriteListItem}: Props) {
     const {nickname, profileImage} = favoriteListItem;
 
     //            function: 네비게이트 함수            //
-    //const navigator = useNavigate();
+    //const navigate = useNavigate();
 
     //          event handler: 탑 3 게시물 아이템 클릭 처리 함수            //
     const onClickHandler = () => {
-       // navigator(boardNumber);
+       // navigate(boardNumber);
     }
 
     //       render :comment List Item 컴포넌트 랜더링       //
