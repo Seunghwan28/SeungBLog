@@ -4,6 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.text.SimpleDateFormat;
+
 
 import com.seungg.boardback.dto.request.board.PatchBoardRequestDto;
 import com.seungg.boardback.dto.request.board.PostBoardRequestDto;
@@ -13,15 +17,19 @@ import com.seungg.boardback.dto.response.board.DeleteBoardResponseDto;
 import com.seungg.boardback.dto.response.board.GetBoardResponseDto;
 import com.seungg.boardback.dto.response.board.GetCommentListResponseDto;
 import com.seungg.boardback.dto.response.board.GetFavoriteListResponseDto;
+import com.seungg.boardback.dto.response.board.GetLatestBoardListResponseDto;
+import com.seungg.boardback.dto.response.board.GetTop3BoardListResponseDto;
 import com.seungg.boardback.dto.response.board.PostBoardResponseDto;
 import com.seungg.boardback.dto.response.board.PostCommentResponseDto;
 import com.seungg.boardback.dto.response.board.PutFavoriteResponseDto;
 import com.seungg.boardback.dto.response.board.IncreaseViewCountResponseDto;
 import com.seungg.boardback.dto.response.board.PatchBoardResponseDto;
 import com.seungg.boardback.entity.BoardEntity;
+import com.seungg.boardback.entity.BoardListViewEntity;
 import com.seungg.boardback.entity.CommentEntity;
 import com.seungg.boardback.entity.FavoriteEntity;
 import com.seungg.boardback.entity.ImageEntity;
+import com.seungg.boardback.repository.BoardListViewRepository;
 import com.seungg.boardback.repository.BoardRepository;
 import com.seungg.boardback.repository.CommentRepository;
 import com.seungg.boardback.repository.FavoriteRepository;
@@ -43,6 +51,7 @@ public class BoardServiceImplement implements BoardService {
     private final ImageRepository imageRepository;
     private final FavoriteRepository favoriteRepository;
     private final CommentRepository commentRepository;
+    private final BoardListViewRepository boardListViewRepository;
 
     @Override
     public ResponseEntity<? super GetBoardResponseDto> getBoard(Integer boardNumber) {
@@ -260,6 +269,39 @@ public class BoardServiceImplement implements BoardService {
         }
         return PatchBoardResponseDto.success();
         
+    }
+
+    @Override
+    public ResponseEntity<? super GetLatestBoardListResponseDto> getLatestBoardList() {
+
+        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
+
+        try {
+            boardListViewEntities = boardListViewRepository.findByOrderByWriteDatetimeDesc();
+
+        }catch(Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return GetLatestBoardListResponseDto.success(boardListViewEntities);
+    }
+
+    @Override
+    public ResponseEntity<? super GetTop3BoardListResponseDto> getTop3BoardList() {
+
+        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
+
+        try{
+            Date beforeWeek = Date.from(Instant.now().minus(7,ChronoUnit.DAYS)); 
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String weekAgo = simpleDateFormat.format(beforeWeek);
+            boardListViewEntities = boardListViewRepository.findTop3ByWriteDatetimeGreaterThanOrderByFavoriteCountDescCommentCountDescViewCountDescWriteDatetimeDesc(weekAgo);
+
+        }catch(Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return GetTop3BoardListResponseDto.success(boardListViewEntities);
     }
 
     
