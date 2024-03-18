@@ -2,6 +2,7 @@ import React from 'react'
 import './style.css';
 import { BoardListItem } from 'types/interface';
 import { useNavigate } from 'react-router-dom';
+import { BOARD_DETAIL_PATH, BOARD_PATH } from 'constant';
 //import defaultProfileImage from 'assets/image/default_profile_image.jpg';
 const defaultProfileImage = require('assets/image/default_profile_image.jpg');
 
@@ -19,11 +20,11 @@ export default function BoardItem({boardListItem}: Props) {
     const {writeDatetime, writerNickname, writerProfileImage} = boardListItem;
 
     //             function: 내비게이트 함수            //
-    //const navigate = useNavigate();
+    const navigate = useNavigate();
 
     //             event handler: 게시믈 아이템 클릭 이벤트 처리 함수            //
     const onClickHandler = () => {
-     //   navigate(boardNumber);
+        navigate(BOARD_PATH() + '/' + BOARD_DETAIL_PATH(boardNumber));
     }
 
   //          render: Board List Item 렌더링          //
