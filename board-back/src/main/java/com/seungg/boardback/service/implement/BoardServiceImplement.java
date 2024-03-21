@@ -314,15 +314,15 @@ public class BoardServiceImplement implements BoardService {
         List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
 
         try {
-            boolean relation = preSearchWord != null;
             boardListViewEntities = boardListViewRepository.findByTitleContainsOrContentContainsOrderByWriteDatetimeDesc(searchWord, searchWord);
 
-            if(!relation) {
-                SearchLogEntity searchLogEntity = new SearchLogEntity(searchWord, preSearchWord, relation);
-                searchLogRepository.save(searchLogEntity);
-            }
-            else {
-                SearchLogEntity searchLogEntity = new SearchLogEntity(preSearchWord, searchWord, relation);
+            SearchLogEntity searchLogEntity = new SearchLogEntity(searchWord, preSearchWord, false);
+            searchLogRepository.save(searchLogEntity);
+           
+            boolean relation = preSearchWord != null;
+
+            if(relation) {
+                searchLogEntity = new SearchLogEntity(preSearchWord, searchWord, relation);
                 searchLogRepository.save(searchLogEntity);
             }
 

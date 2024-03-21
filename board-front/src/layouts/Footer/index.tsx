@@ -44,7 +44,7 @@ const onFacebookIconButtonClickHandler = () => {
                 </div>
             </div>
             <div className='footer-bottom'>
-                <div className='footer-copyright'>{'Copyright © 2024 Ccoookiee. All Rights Reserved.'}</div>
+                <div className='footer-copyright'>{'Copyright © 2024 Cookie. All Rights Reserved.'}</div>
             </div>
         </div>
     </div>
