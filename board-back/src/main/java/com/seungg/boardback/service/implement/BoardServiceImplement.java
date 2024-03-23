@@ -20,6 +20,7 @@ import com.seungg.boardback.dto.response.board.GetFavoriteListResponseDto;
 import com.seungg.boardback.dto.response.board.GetLatestBoardListResponseDto;
 import com.seungg.boardback.dto.response.board.GetSearchBoardListResponseDto;
 import com.seungg.boardback.dto.response.board.GetTop3BoardListResponseDto;
+import com.seungg.boardback.dto.response.board.GetUserBoardListResponseDto;
 import com.seungg.boardback.dto.response.board.PostBoardResponseDto;
 import com.seungg.boardback.dto.response.board.PostCommentResponseDto;
 import com.seungg.boardback.dto.response.board.PutFavoriteResponseDto;
@@ -332,6 +333,25 @@ public class BoardServiceImplement implements BoardService {
             return ResponseDto.databaseError();
         }
         return GetSearchBoardListResponseDto.success(boardListViewEntities);
+    }
+
+    @Override
+    public ResponseEntity<? super GetUserBoardListResponseDto> getUserBoardList(String email) {
+
+        List<BoardListViewEntity> boardListViewEntities = new ArrayList<>();
+
+        try{
+
+            boolean existedEmail = userRepository.existsByEmail(email);
+            if(!existedEmail) return GetUserBoardListResponseDto.notExistUser();
+
+            boardListViewEntities = boardListViewRepository.findByWriterEmailOrderByWriteDatetimeDesc(email);
+            
+        }catch(Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+        return GetUserBoardListResponseDto.success(boardListViewEntities);
     }
 
     

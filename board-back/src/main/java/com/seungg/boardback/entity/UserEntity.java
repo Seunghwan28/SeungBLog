@@ -1,6 +1,8 @@
 package com.seungg.boardback.entity;
 
 import com.seungg.boardback.dto.request.auth.SignUpRequestDto;
+import com.seungg.boardback.dto.request.board.PatchBoardRequestDto;
+import com.seungg.boardback.dto.request.user.PatchNicknameRequestDto;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -35,4 +37,13 @@ public class UserEntity {
         this.addressDetail = dto.getAddressDetail();
         this.agreedPersonal = dto.getAgreedPersonal();
     }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    } 
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    } 
+
 }
