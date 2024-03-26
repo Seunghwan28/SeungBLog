@@ -5,9 +5,14 @@ import usePagination from 'hooks/pagination.hook';
 import BoardListItem from 'types/interface/board-list-item.interface';
 import BoardItem from 'components/BoardItem';
 import Pagination from 'components/Pagination';
-import { latestBoardListMock } from 'mocks';
-import { BOARD_PATH, BOARD_WRITE_PATH, USER_PATH } from 'constant';
+import { BOARD_PATH, BOARD_WRITE_PATH, MAIN_PATH, USER_PATH } from 'constant';
 import { useLoginUserStore } from 'stores';
+import { fileUploadRequest, getUserBoardListRequest, getUserRequest, patchNicknameRequest, patchProfileImageRequest } from 'apis';
+import { GetUserResponseDto, PatchNicknameResponseDto, PatchProfileImageResponseDto } from 'apis/response/user';
+import { ResponseDto } from 'apis/response';
+import { PatchNicknameRequestDto, PatchProfileImageRequestDto } from 'apis/request/user';
+import { useCookies } from 'react-cookie';
+import { GetUserBoardListResponseDto } from 'apis/response/board';
 const defaultProfileImage = require('assets/image/default_profile_image.jpg');
 
 //          Component: 유저 화면 컴포넌트         //
@@ -21,6 +26,9 @@ export default function User() {
 
   //          state: 로그인 유저 상태          //
   const {loginUser} = useLoginUserStore();
+
+  //          state: 쿠키상태           //
+  const [cookies, setCookie] = useCookies();
 
   //          function: 네비게이트 함수          //
   const navigate = useNavigate();
@@ -43,6 +51,64 @@ export default function User() {
     //          state: 프로필이미지  상태             //
     const [profileImage, setProfileImage] = useState<string | null>(null);
 
+    //          function: get user Response 처리 함수           //
+    const getUserResponse = (responseBody: GetUserResponseDto | ResponseDto | null) => {
+      if(!responseBody) return;
+      const { code } = responseBody;
+      if(code === 'NU') alert('존재하지 않는 유저입니다.');
+      if(code === 'DBE') alert('데이터베이스 오류입니다.');
+      if(code !== 'SU') {
+        navigate(MAIN_PATH());
+        return;
+      }
+
+      const { email, nickname, profileImage } = responseBody as GetUserResponseDto;
+      setNickname(nickname);
+      setProfileImage(profileImage);
+      const isMyPage = email === loginUser?.email;
+      setMyPage(isMyPage);
+
+    };
+
+    //          function: file upload response 처리 함수          //
+    const fileUploadResponse = (profileImage: string | null) => {
+      if(!profileImage) return;
+      if(!cookies.accessToken) return;
+      const requestBody: PatchProfileImageRequestDto = {profileImage};
+      patchProfileImageRequest(requestBody, cookies.accesToken).then(patchProfileImageResponse);
+    }
+
+    //          function: patch profile Image response 처리 함수           //
+    const patchProfileImageResponse = (responseBody: PatchProfileImageResponseDto | ResponseDto | null ) => {
+      if(!responseBody) return;
+      const { code } = responseBody;
+      if(code === 'AF') alert('인증에 실패했습니다.');
+      if(code === 'NU') alert('존재하지 않는 유저입니다.');
+      if(code === 'DBE') alert('데이터베이스 오류입니다.');
+      if(code !== 'SU') return;
+
+      if(!userEmail) return;
+      getUserRequest(userEmail).then(getUserResponse);
+    }
+
+    //          function: patch nickname response 처리 함수          //
+    const patchNicknameResponse = (responseBody: PatchNicknameResponseDto | ResponseDto | null) => {
+      if(!responseBody) return;
+      const { code } = responseBody;
+      if(code === 'AF') alert('인증에 실패했습니다.');
+      if(code === 'VF') alert('닉네임은 필수입니다.');
+      if(code === 'DN') alert('중복된 닉네임입니다.');
+      if(code === 'NU') alert('존재하지 않는 유저입니다.');
+      if(code === 'DBE') alert('데이터베이스 오류입니다.');
+      if(code !== 'SU') return;
+
+      if(!userEmail) return;
+      getUserRequest(userEmail).then(getUserResponse);
+      alert('닉네임이 변경되었습니다.');
+      window.location.reload();
+      setChangeNickname(false);
+    }
+
     //          event Handler: 프로필 박스 클릭 이벤트 처리             //
     const onProfileBoxClickHandler = () => {
       if(!isMyPage) return;
@@ -52,8 +118,16 @@ export default function User() {
 
     //          event Handler: 닉네임 edit버튼 클릭 이벤트 처리         //
     const onNicknameEditButtonClickHandler = () => {
-      setChangedNickname(nickname);
-      setChangeNickname(!isChangeNickname);
+      if(!isChangeNickname) {
+        setChangedNickname(nickname);
+        setChangeNickname(!isChangeNickname);
+        return;
+      }
+
+      if(!cookies.accessToken) return;
+      const requestBody: PatchNicknameRequestDto = {nickname: changedNickname};
+      
+      patchNicknameRequest(requestBody, cookies.accessToken).then(patchNicknameResponse);
     } 
 
     //          event Handler: 프로필 수정 이벤트 처리           //
@@ -63,20 +137,21 @@ export default function User() {
       const file = event.target.files[0];
       const data = new FormData();
       data.append('file', file);
+
+      fileUploadRequest(data).then(fileUploadResponse);
     }
 
     //          event Handler: 닉네임 변경 이벤트 처리          //
     const onNicknameChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-      const {value} = event.target;
+      const { value } = event.target;
       setChangedNickname(value);
     }
 
 
     //          effect: user email path variable 변경시 실행할 함수            //
     useEffect(() => {
-      setNickname('고한영');
-      setProfileImage('https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20240205_154%2F1707104829276Ojsxy_JPEG%2F17267677100724324_883875013.jpg')
-
+      if(!userEmail) return;
+      getUserRequest(userEmail).then(getUserResponse);
     },[userEmail]);
 
 
@@ -124,13 +199,26 @@ export default function User() {
 
     //          state: 검색 게시물 개수 상태           //
     const [count, setCount] = useState<number>(2);
-    
-    //          state: 게시물 리스트 상태 (임시)            //
-    const [userBoardList, setUserBoardList] = useState<BoardListItem[]>([]);
 
     //          state: 페이지네이션 관련 상태           //
    const {currentPage, currentSection, viewList, viewPageList, totalSection,
     setCurrentPage,setCurrentSection, setTotalList } = usePagination<BoardListItem>(5);
+
+    //          function: get user board List response 처리 함수          //
+    const getUserBoardListResponse = (responseBody: GetUserBoardListResponseDto | ResponseDto | null) => {
+      if(!responseBody) return;
+      const { code } = responseBody;
+      if(code === 'NU') {
+        alert('존재하지 않는 유저입니다.');
+        navigate(MAIN_PATH());
+        }
+      if(code === 'DBE') alert('데이터베이스 오류입니다.');
+      if(code !== 'SU') return;
+
+      const { userBoardList } = responseBody as GetUserBoardListResponseDto;
+      setTotalList(userBoardList);
+      setCount(userBoardList.length);
+    }
 
     //          event Handler: 사이드 카드 클릭 이벤트 처리           //
     const onSideCardClickHandler = () => {
@@ -142,7 +230,8 @@ export default function User() {
 
     //          effect: userEmail path variable이 변경될때마다 실행할 함수            //
     useEffect(() => {
-      setUserBoardList(latestBoardListMock);
+      if(!userEmail) return;
+      getUserBoardListRequest(userEmail).then(getUserBoardListResponse);
     },[userEmail]);
 
 
@@ -155,7 +244,7 @@ export default function User() {
               {count === 0 ? 
               <div className='user-bottom-contents-nothing'>{'게시물이 없습니다.'}</div> :
               <div className='user-bottom-contents'>
-                {userBoardList.map(boardListItem => <BoardItem boardListItem={boardListItem} />)}
+                {viewList.map(boardListItem => <BoardItem boardListItem={boardListItem} />)}
               </div>
               }
               <div className='user-bottom-side-box'>
@@ -179,7 +268,17 @@ export default function User() {
                 </div>
               </div>
             </div>
-            <div className='user-bottom-pagination-box'></div>
+            <div className='user-bottom-pagination-box'>
+            {count !== 0 && 
+              <Pagination 
+              currentPage = {currentPage}
+              currentSection = {currentSection}
+              setCurrentPage = {setCurrentPage}
+              setCurrentSection = {setCurrentSection}
+              viewPageList = {viewPageList}
+              totalSection = {totalSection}
+            /> } 
+            </div>
         </div>
       </div>
     );
